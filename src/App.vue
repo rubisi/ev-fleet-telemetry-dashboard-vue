@@ -1,85 +1,102 @@
-<script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+<script setup>
+import { onMounted, computed } from 'vue'
+import { useStore } from 'vuex'
+import MapView from './components/MapView.vue'
+import AlertsPanel from './components/AlertsPanel.vue'
+import OfflineBanner from './components/OfflineBanner.vue'
+
+const store = useStore()
+onMounted(() => {
+  store.dispatch('init')
+  store.dispatch('startStream')
+})
+
+const vehicles = computed(() => store.getters.visibleVehicles)
+const overview = computed(() => store.getters.overview)
+const alerts = computed(() => store.getters.alerts)
+const offline = computed(() => store.getters.offline) // NEW
+const isDark = computed(() => store.getters.isDark)
+
+function setFilter(v) {
+  store.commit('SET_FILTER', v)
+}
+function setSortKey(key) {
+  store.commit('SET_SORT', { key, dir: store.state.ui.sortDir })
+}
+function toggleSortDir() {
+  const dir = store.state.ui.sortDir === 'asc' ? 'desc' : 'asc'
+  store.commit('SET_SORT', { key: store.state.ui.sortKey, dir })
+}
+function ackAlert(id) {
+  store.commit('ACK_ALERT', id)
+}
+function toggleDark() {
+  store.commit('TOGGLE_DARK')
+}
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <main style="padding: 16px; font-family: system-ui">
+    <!-- NEW: Offline banner -->
+    <OfflineBanner :visible="offline" />
+    <header style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px">
+      <h1 style="margin: 0">EV Fleet Dashboard</h1>
+      <span style="opacity: 0.7">•</span>
+      <button @click="toggleDark">{{ isDark ? 'Light mode' : 'Dark mode' }}</button>
+    </header>
+    <section style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap">
+      <strong>Overview:</strong>
+      <span>Avg SOC: {{ overview.avgSoc.toFixed(0) }}%</span>
+      <span>Moving: {{ overview.moving }}</span>
+      <span>Charging: {{ overview.charging }}</span>
+      <span>Idle: {{ overview.idle }}</span>
+    </section>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+    <section
+      style="display: flex; gap: 16px; margin: 12px 0; align-items: flex-start; flex-wrap: wrap"
+    >
+      <div style="flex: 1 1 520px">
+        <MapView :vehicles="vehicles" />
+      </div>
 
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
+      <div style="flex: 1 1 320px; min-width: 300px">
+        <AlertsPanel :items="alerts" @ack="ackAlert" />
+      </div>
+    </section>
 
-  <RouterView />
+    <section style="display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap">
+      <div style="display: flex; gap: 6px; align-items: center">
+        <span>Status:</span>
+        <button @click="setFilter('all')">All</button>
+        <button @click="setFilter('moving')">Moving</button>
+        <button @click="setFilter('charging')">Charging</button>
+        <button @click="setFilter('idle')">Idle</button>
+      </div>
+
+      <div style="display: flex; gap: 6px; align-items: center">
+        <span>Sort by:</span>
+        <select @change="setSortKey($event.target.value)">
+          <option value="soc">SOC</option>
+          <option value="speed">Speed</option>
+          <option value="distance">Distance</option>
+        </select>
+        <button @click="toggleSortDir">Toggle ↑/↓</button>
+      </div>
+
+      <div style="margin-left: auto; display: flex; gap: 8px">
+        <button @click="$store.dispatch('stopStream')">Pause</button>
+        <button @click="$store.dispatch('startStream')">Resume</button>
+      </div>
+    </section>
+
+    <ul style="margin-top: 12px">
+      <li v-for="v in vehicles" :key="v.id">
+        {{ v.name }} — {{ v.soc.toFixed(0) }}% — {{ v.speed.toFixed(0) }} km/h —
+        {{ v.distance.toFixed(2) }} km — {{ v.temp.toFixed(0) }}°C —
+        <em v-if="v.charging">charging</em>
+        <em v-else-if="v.speed > 0">moving</em>
+        <em v-else>idle</em>
+      </li>
+    </ul>
+  </main>
 </template>
-
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
-</style>
