@@ -1,61 +1,142 @@
 # ev-fleet-telemetry-dashboard
 
-This template should help get you started developing with Vue 3 in Vite.
+A Vue 3 + Vite + Vuex single-page app that simulates real-time telemetry for a fleet of EVs.  
+It includes live updates, overview stats, per-vehicle panels, a map with moving markers, filters/sorting, alerts, an offline banner, dark mode, a draggable layout, and unit tests.
 
-## Recommended IDE Setup
+---
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Features
 
-## Type Support for `.vue` Imports in TS
+- **Real-time simulation**: 10 vehicles, **12+ telemetry fields**  
+  _(speed, SOC, temperature, distance, charging, lat/lon, tire pressures FL/FR/RL/RR, efficiency, regen)_
+- **Overview**: average SOC, counts of **moving / charging / idle**
+- **Vehicle panels**: cards with SOC bar, speed, temp, distance, efficiency, tire pressures, regen badge
+- **Map**: Leaflet markers that update as vehicles move
+- **Filter / Sort**: status (moving / charging / idle), sort by SOC / speed / distance
+- **Alerts**: low battery (<15%) and high temperature (>75 °C) with acknowledge & de-dup/hysteresis
+- **Offline banner**: pause/resume stream; keeps last values visible
+- **Dark mode**: CSS variables + persisted preference
+- **Custom layout**: drag-to-reorder main panels (overview / map / alerts / cards)
+- **Tests**: 3 unit tests (Vitest)
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+---
 
-## Customize configuration
+## Tech stack
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+- **Vue 3**, **Vite**
+- **Vuex 4** (state management)
+- **Leaflet** + `@vue-leaflet/vue-leaflet` (map)
+- `vuedraggable` (drag-and-drop layout)
+- **Vitest** + `@vue/test-utils` + **jsdom** (unit tests)
 
-## Project Setup
+---
 
-```sh
+## Getting started
+
+**Requirements:** Node **20 LTS** (recommended), npm
+
+```bash
+# install dependencies
 npm install
-```
 
-### Compile and Hot-Reload for Development
-
-```sh
+# start dev server
 npm run dev
+# open the printed URL (usually http://localhost:5173)
 ```
 
-### Type-Check, Compile and Minify for Production
+---
 
-```sh
+## Tests
+
+```bash
+# run once (CI-style)
+npm run test
+
+# watch mode (reruns on save)
+npm run test:watch
+```
+
+Covers:
+
+1. overview getter (avg SOC + moving/charging/idle)
+2. offline banner state (SET_STREAM / offline getter)
+3. VehicleCard renders SOC & status
+
+---
+
+## Production
+
+```bash
+# create production bundle in /dist
 npm run build
+
+# serve the built assets locally and verify prod build
+npm run preview
+# open the printed URL (usually http://localhost:4173)
+
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+---
 
-```sh
-npm run test:unit
+## Project Structure (key files)
+
+```bash
+    src/
+    components/
+        AlertsPanel.vue
+        MapView.vue
+        OfflineBanner.vue
+        VehicleCard.vue
+    store/
+        index.js              # Vuex: vehicles, UI, alerts, simulation
+    App.vue
+    main.js                 # theme sync, Leaflet CSS/icons
+    styles.css              # light/dark CSS variables
+
+    tests/
+    VehicleCard.test.js
+    store.offline.test.js
+    store.overview.test.js
+
 ```
 
-### Run End-to-End Tests with [Cypress](https://www.cypress.io/)
+---
 
-```sh
-npm run test:e2e:dev
+## How the simulation works (high-level)
+
+- A Vuex startStream action starts an interval (~1.5s) that dispatches tick.
+- tick computes batch updates for each vehicle and commits them via a single APPLY_TICK mutation (perf-friendly).
+- Values evolve realistically:
+- Speed varies; distance integrates speed over time.
+- SOC drains when moving; rises when idle/charging (up to 95%).
+- Temperature rises when moving, cools when idle.
+- Position drifts with speed.
+- Tire pressures nudge up when hot/moving, otherwise cool slightly (clamped 1.8–3.2 bar).
+- Efficiency (km/kWh) best around 60–80 km/h; worse at very low/high speeds.
+- Regen flag toggles on occasional deceleration events.
+- Alerts (low battery/high temp) fire once per condition and reset when recovered (hysteresis).
+
+---
+
+## Scripts
+
+```json
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  }
+}
 ```
 
-This runs the end-to-end tests against the Vite development server.
-It is much faster than the production build.
+---
 
-But it's still recommended to test the production build with `test:e2e` before deploying (e.g. in CI environments):
+## Future Work
 
-```sh
-npm run build
-npm run test:e2e
-```
+- Collapsable sections & compact cards
+- Add more alerts
 
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+---
