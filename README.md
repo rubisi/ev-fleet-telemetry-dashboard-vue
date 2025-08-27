@@ -1,4 +1,4 @@
-# ev-fleet-telemetry-dashboard
+# EV Fleet Telemetry Dashboard
 
 A Vue 3 + Vite + Vuex single-page app that simulates real-time telemetry for a fleet of EVs.  
 It includes live updates, overview stats, per-vehicle panels, a map with moving markers, filters/sorting, alerts, an offline banner, dark mode, a draggable layout, and unit tests.
