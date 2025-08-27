@@ -22,8 +22,9 @@ export default createStore({
       statusFilter: 'all',
       sortKey: 'soc',
       sortDir: 'desc',
-      streamOn: true, // NEW: show/hide offline banner
-      dark: false, // NEW: dark mode
+      streamOn: true,
+      dark: false,
+      widgets: ['overview', 'map', 'alerts', 'cards'],
     },
   }),
   mutations: {
@@ -62,6 +63,9 @@ export default createStore({
     }, // NEW
     TOGGLE_DARK(state) {
       state.ui.dark = !state.ui.dark
+    }, // NEW
+    SET_WIDGETS(state, list) {
+      state.ui.widgets = list
     }, // NEW
   },
   actions: {
@@ -228,7 +232,8 @@ export default createStore({
       return [...arr].sort((a, b) => (a[sortKey] - b[sortKey]) * dir)
     },
     alerts: (state) => state.alerts,
-    offline: (state) => !state.ui.streamOn, // NEW
+    offline: (state) => !state.ui.streamOn,
     isDark: (state) => state.ui.dark,
+    widgets: (state) => state.ui.widgets,
   },
 })
