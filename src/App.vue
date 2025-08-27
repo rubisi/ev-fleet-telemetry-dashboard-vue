@@ -89,16 +89,6 @@ function toggleDark() {
         <button @click="$store.dispatch('startStream')">Resume</button>
       </div>
     </section>
-
-    <!-- <ul style="margin-top: 12px">
-      <li v-for="v in vehicles" :key="v.id">
-        {{ v.name }} — {{ v.soc.toFixed(0) }}% — {{ v.speed.toFixed(0) }} km/h —
-        {{ v.distance.toFixed(2) }} km — {{ v.temp.toFixed(0) }}°C —
-        <em v-if="v.charging">charging</em>
-        <em v-else-if="v.speed > 0">moving</em>
-        <em v-else>idle</em>
-      </li>
-    </ul> -->
     <section
       style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px"
     >
