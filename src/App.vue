@@ -4,6 +4,7 @@ import { useStore } from 'vuex'
 import MapView from './components/MapView.vue'
 import AlertsPanel from './components/AlertsPanel.vue'
 import OfflineBanner from './components/OfflineBanner.vue'
+import VehicleCard from './components/VehicleCard.vue'
 
 const store = useStore()
 onMounted(() => {
@@ -89,7 +90,7 @@ function toggleDark() {
       </div>
     </section>
 
-    <ul style="margin-top: 12px">
+    <!-- <ul style="margin-top: 12px">
       <li v-for="v in vehicles" :key="v.id">
         {{ v.name }} — {{ v.soc.toFixed(0) }}% — {{ v.speed.toFixed(0) }} km/h —
         {{ v.distance.toFixed(2) }} km — {{ v.temp.toFixed(0) }}°C —
@@ -97,6 +98,11 @@ function toggleDark() {
         <em v-else-if="v.speed > 0">moving</em>
         <em v-else>idle</em>
       </li>
-    </ul>
+    </ul> -->
+    <section
+      style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px"
+    >
+      <VehicleCard v-for="v in vehicles" :key="v.id" :v="v" />
+    </section>
   </main>
 </template>
