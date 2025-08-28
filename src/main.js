@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import store from './store'
+import router from './router'
 
 import './styles.css' // NEW
 import 'leaflet/dist/leaflet.css'
@@ -35,4 +36,4 @@ store.watch(
   },
 )
 
-app.mount('#app')
+app.use(store).use(router).mount('#app')

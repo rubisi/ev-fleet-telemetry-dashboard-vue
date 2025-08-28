@@ -24,7 +24,7 @@ export default createStore({
       sortDir: 'desc',
       streamOn: true,
       dark: false,
-      widgets: ['overview', 'map', 'alerts', 'cards'],
+      widgets: ['kpis', 'map', 'controls', 'cards'],
     },
   }),
   mutations: {
@@ -66,7 +66,7 @@ export default createStore({
     }, // NEW
     SET_WIDGETS(state, list) {
       state.ui.widgets = list
-    }, // NEW
+    },
   },
   actions: {
     init({ commit }) {
