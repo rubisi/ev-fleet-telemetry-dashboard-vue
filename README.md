@@ -143,5 +143,9 @@ npm run preview
 
 - Collapsable sections & compact cards
 - Add more alerts
+- Add more routes/pages such as Vehicles, Settings, etc.
+- Implement internalization (i18n) support (EN/DE)
+- Unit tests for store logic
+- Smooth, subtle animations for UI state changes and live updates (Vue <Transition>/<TransitionGroup>, respect prefers-reduced-motion).
 
 ---
