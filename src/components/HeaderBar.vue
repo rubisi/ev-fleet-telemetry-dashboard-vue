@@ -1,20 +1,21 @@
 <script setup>
+// top bar with offline chip, pause/resume button/ theme toggle/ notification icon
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useStore } from 'vuex'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 const store = useStore()
 const router = useRouter()
-const route = useRoute()
 
-const isDark = computed(() => store.getters.isDark)
-const themeLabel = computed(() => (isDark.value ? 'Switch to light mode' : 'Switch to dark mode'))
-const offline = computed(() => store.getters.offline)
-const alerts = computed(() => store.getters.alerts)
+const isDark = computed(() => store.getters.isDark) // theme mode
+const offline = computed(() => store.getters.offline) // whether the app is offline
+const alerts = computed(() => store.getters.alerts) // all notifications
 const unacked = computed(() => alerts.value.filter((a) => !a.ack))
-const unackedCount = computed(() => unacked.value.length)
-const bellLabel = computed(() =>
-  unackedCount.value ? `Open notifications — ${unackedCount.value} new` : 'Open notifications',
+const unackedCount = computed(() => unacked.value.length) // num of unacknowledged notifications
+const themeLabel = computed(() => (isDark.value ? 'Switch to light mode' : 'Switch to dark mode')) // updates with state
+const bellLabel = computed(
+  () =>
+    unackedCount.value ? `Open notifications — ${unackedCount.value} new` : 'Open notifications', // updates with state
 )
 
 function toggleDark() {
@@ -26,15 +27,17 @@ function toggleStream() {
 
 const open = ref(false)
 const root = ref(null)
+// notification dropdown
 function toggleDropdown() {
   open.value = !open.value
 }
 function goAll() {
+  // closes dropdown and routes to the notifications page.
   open.value = false
   router.push({ name: 'notifications' })
 }
 function ack(id) {
-  store.commit('ACK_ALERT', id)
+  store.commit('ACK_ALERT', id) // marks a single alert as acknowledged
 }
 
 function onDocClick(e) {
@@ -49,13 +52,13 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
   <header class="header" ref="root">
     <div class="header__left">
       <!-- <h2 class="header__title">{{ title }}</h2> -->
+
+      <!-- Show when offline is true -->
       <span v-if="offline" class="chip chip--warn">Offline</span>
     </div>
 
     <div class="header__right">
       <button class="btn" @click="toggleStream">{{ offline ? 'Resume' : 'Pause' }}</button>
-      <!-- <button class="btn" @click="toggleDark">{{ isDark ? 'Light' : 'Dark' }}</button> -->
-
       <button
         class="btn btn--icon theme-toggle"
         @click="toggleDark"
@@ -144,7 +147,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
                 <small class="muted">• {{ new Date(a.ts).toLocaleTimeString() }}</small>
               </div>
               <button class="btn btn--sm" :disabled="a.ack" @click="ack(a.id)">
-                {{ a.ack ? 'Ack’d' : 'Ack' }}
+                {{ a.ack ? 'Resolved' : 'Resolve' }}
               </button>
             </div>
           </div>

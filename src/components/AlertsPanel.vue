@@ -32,7 +32,7 @@ const emit = defineEmits(['ack'])
           <div style="opacity: 0.85">{{ a.msg }}</div>
         </div>
         <button :disabled="a.ack" @click="$emit('ack', a.id)">
-          {{ a.ack ? 'Acknowledged' : 'Acknowledge' }}
+          {{ a.ack ? 'Resolved' : 'Resolve' }}
         </button>
       </li>
     </ul>

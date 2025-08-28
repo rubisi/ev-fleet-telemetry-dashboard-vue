@@ -1,4 +1,5 @@
 <script setup>
+// Root component for the Vue app that wires together the Sidebar, HeaderBar, and main content area.
 import Sidebar from './components/Sidebar.vue'
 import HeaderBar from './components/HeaderBar.vue'
 </script>
@@ -15,6 +16,7 @@ import HeaderBar from './components/HeaderBar.vue'
 
 <style>
 .layout {
+  /* provides the global layout (sidebar+header+content) */
   display: grid;
   grid-template-columns: 240px 1fr;
   min-height: 100vh;

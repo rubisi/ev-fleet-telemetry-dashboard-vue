@@ -15,6 +15,7 @@ onMounted(() => {
     store.dispatch('startStream')
   }
 
+  // Loads saved panel order from localStorage
   const defaultOrder = ['kpis', 'map', 'controls', 'cards']
   const raw = localStorage.getItem('widgets')
   if (!raw) {
@@ -41,20 +42,25 @@ onMounted(() => {
   }
 })
 
+// Computed from Vuex
 const vehicles = computed(() => store.getters.visibleVehicles)
 const overview = computed(() => store.getters.overview)
 const offline = computed(() => store.getters.offline)
 const alerts = computed(() => store.getters.alerts || [])
 const unackedCount = computed(() => alerts.value.filter((a) => !a.ack).length)
+const statusFilter = computed(() => store.state.ui.statusFilter)
 
 // two-way binding to Vuex
 const widgets = computed({
+  // widgets is a computed with get/set to Vuex state.ui.widgets.
   get: () => store.state.ui.widgets,
   set: (val) => store.commit('SET_WIDGETS', val),
 })
 // persist layout
+// This deep watcher saves any reorder to localStorage (so our layout sticks on refresh).
 watch(widgets, (val) => localStorage.setItem('widgets', JSON.stringify(val)), { deep: true })
 
+// UI actions that commit to Vuex
 function setFilter(v) {
   store.commit('SET_FILTER', v)
 }
@@ -128,12 +134,44 @@ function toggleSortDir() {
 
           <!-- Controls -->
           <div v-else-if="element === 'controls'" class="controls">
-            <div class="controls__group">
+            <div class="controls__group" role="group" aria-label="Status filter">
               <span class="controls__label">Status:</span>
-              <button @click="setFilter('all')">All</button>
-              <button @click="setFilter('moving')">Moving</button>
-              <button @click="setFilter('charging')">Charging</button>
-              <button @click="setFilter('idle')">Idle</button>
+
+              <button
+                type="button"
+                @click="setFilter('all')"
+                :class="{ 'is-active': statusFilter === 'all' }"
+                :aria-pressed="statusFilter === 'all'"
+              >
+                All
+              </button>
+
+              <button
+                type="button"
+                @click="setFilter('moving')"
+                :class="{ 'is-active': statusFilter === 'moving' }"
+                :aria-pressed="statusFilter === 'moving'"
+              >
+                Moving
+              </button>
+
+              <button
+                type="button"
+                @click="setFilter('charging')"
+                :class="{ 'is-active': statusFilter === 'charging' }"
+                :aria-pressed="statusFilter === 'charging'"
+              >
+                Charging
+              </button>
+
+              <button
+                type="button"
+                @click="setFilter('idle')"
+                :class="{ 'is-active': statusFilter === 'idle' }"
+                :aria-pressed="statusFilter === 'idle'"
+              >
+                Idle
+              </button>
             </div>
 
             <div class="controls__group">
@@ -143,7 +181,7 @@ function toggleSortDir() {
                 <option value="speed">Speed</option>
                 <option value="distance">Distance</option>
               </select>
-              <button @click="toggleSortDir">Toggle ↑/↓</button>
+              <button @click="toggleSortDir">Order ↑/↓</button>
             </div>
 
             <div class="controls__spacer"></div>
@@ -283,5 +321,20 @@ function toggleSortDir() {
   transition:
     color 0.2s ease,
     transform 0.2s ease;
+}
+
+/* base buttons inside controls (optional polish) */
+.controls button {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+/* selected state */
+.controls button.is-active {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.25);
+  color: #1d4ed8; /* optional: accent text */
 }
 </style>

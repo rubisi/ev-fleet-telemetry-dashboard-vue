@@ -1,17 +1,19 @@
 <script setup>
+// Navigation sidebar for the dashboard
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 
 const route = useRoute()
+// Navigation items
 const items = [
   { to: '/', label: 'Dashboard', name: 'dashboard' },
   { to: '/notifications', label: 'Notifications', name: 'notifications' },
 ]
 
-const open = ref(false)
-const root = ref(null)
+const open = ref(false) //controls whether the mobile dropdown menu is visible.
+const root = ref(null) // reference to the sidebar element (for click-outside detection)
 
-// Close when route changes
+// If the user navigates to a new page, the mobile menu closes automatically.
 watch(
   () => route.fullPath,
   () => {
@@ -19,7 +21,7 @@ watch(
   },
 )
 
-// Close on outside click
+// Detects clicks outside the sidebar -> closes the mobile dropdown menu
 function onDocClick(e) {
   if (root.value && !root.value.contains(e.target)) open.value = false
 }

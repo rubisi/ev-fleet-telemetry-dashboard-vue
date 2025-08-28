@@ -9,14 +9,14 @@ It includes live updates, overview stats, per-vehicle panels, a map with moving 
 
 - **Real-time simulation**: 10 vehicles, **12+ telemetry fields**  
   _(speed, SOC, temperature, distance, charging, lat/lon, tire pressures FL/FR/RL/RR, efficiency, regen)_
-- **Overview**: average SOC, counts of **moving / charging / idle**
+- **Overview**: average SOC, counts of moving and charging EVs
 - **Vehicle panels**: cards with SOC bar, speed, temp, distance, efficiency, tire pressures, regen badge
 - **Map**: Leaflet markers that update as vehicles move
 - **Filter / Sort**: status (moving / charging / idle), sort by SOC / speed / distance
 - **Alerts**: low battery (<15%) and high temperature (>75 °C) with acknowledge & de-dup/hysteresis
 - **Offline banner**: pause/resume stream; keeps last values visible
 - **Dark mode**: CSS variables + persisted preference
-- **Custom layout**: drag-to-reorder main panels (overview / map / alerts / cards)
+- **Custom layout**: drag-to-reorder main panels (overview / map / controls / cards)
 - **Tests**: 3 unit tests (Vitest)
 
 ---
@@ -84,9 +84,14 @@ npm run preview
     src/
     components/
         AlertsPanel.vue
+        HeaderBar.vue
         MapView.vue
         OfflineBanner.vue
+        Sidebar.vue
         VehicleCard.vue
+    pages/
+        DashboardPage.vue
+        NotificationsPage.vue
     store/
         index.js              # Vuex: vehicles, UI, alerts, simulation
     App.vue

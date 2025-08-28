@@ -5,6 +5,7 @@ const props = defineProps({
 
 // derive a simple status + color
 function statusOf(v) {
+  // console.log('vehicle', v)
   if (v.charging) return { label: 'Charging', bg: 'rgba(16,185,129,0.15)', fg: '#10b981' }
   if (v.speed > 0) return { label: 'Moving', bg: 'rgba(59,130,246,0.15)', fg: '#3b82f6' }
   return { label: 'Idle', bg: 'rgba(148,163,184,0.18)', fg: '#94a3b8' }
@@ -20,7 +21,7 @@ function statusOf(v) {
           v-if="v.regen"
           class="chip"
           style="background: rgba(34, 197, 94, 0.15); color: #22c55e"
-          >🔄 Regen</span
+          >Regen</span
         >
         <span class="chip" :style="{ background: statusOf(v).bg, color: statusOf(v).fg }">
           {{ statusOf(v).label }}
