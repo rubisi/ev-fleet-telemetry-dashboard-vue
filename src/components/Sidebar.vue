@@ -1,20 +1,76 @@
 <script setup>
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 
 const route = useRoute()
 const items = [
   { to: '/', label: 'Dashboard', name: 'dashboard' },
   { to: '/notifications', label: 'Notifications', name: 'notifications' },
-  // { to: '/vehicles', label: 'Vehicles', name: 'vehicles' },
-  // { to: '/settings', label: 'Settings', name: 'settings' },
 ]
+
+const open = ref(false)
+const root = ref(null)
+
+// Close when route changes
+watch(
+  () => route.fullPath,
+  () => {
+    open.value = false
+  },
+)
+
+// Close on outside click
+function onDocClick(e) {
+  if (root.value && !root.value.contains(e.target)) open.value = false
+}
+onMounted(() => document.addEventListener('click', onDocClick))
+onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
 </script>
 
 <template>
-  <aside class="sidebar">
+  <aside class="sidebar" ref="root">
     <div class="sidebar__brand">EV Fleet</div>
 
-    <nav class="sidebar__nav">
+    <!-- Mobile hamburger -->
+    <button
+      class="sidebar__toggle"
+      @click.stop="open = !open"
+      :aria-expanded="open"
+      aria-controls="mobile-nav"
+      aria-label="Toggle navigation"
+      title="Toggle navigation"
+    >
+      <!-- hamburger / close -->
+      <svg
+        v-if="!open"
+        class="icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M3 6h18M3 12h18M3 18h18" />
+      </svg>
+      <svg
+        v-else
+        class="icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M18 6 6 18M6 6l12 12" />
+      </svg>
+    </button>
+
+    <!-- Desktop nav + Mobile popover -->
+    <nav id="mobile-nav" class="sidebar__nav" :class="{ 'is-open': open }">
       <RouterLink
         v-for="item in items"
         :key="item.to"
@@ -34,11 +90,10 @@ const items = [
             stroke-linecap="round"
             stroke-linejoin="round"
           >
-            <path d="M3 10.5 12 3l9 7.5"></path>
-            <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"></path>
-            <path d="M9 21v-6h6v6"></path>
+            <path d="M3 10.5 12 3l9 7.5" />
+            <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10" />
+            <path d="M9 21v-6h6v6" />
           </svg>
-
           <!-- Bell / Notifications -->
           <svg
             v-else-if="item.name === 'notifications'"
@@ -50,11 +105,10 @@ const items = [
             stroke-linecap="round"
             stroke-linejoin="round"
           >
-            <path d="M18 8a6 6 0 1 0-12 0v5l-2 2h16l-2-2V8"></path>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            <path d="M18 8a6 6 0 1 0-12 0v5l-2 2h16l-2-2V8" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
           </svg>
         </span>
-
         <span class="sidebar__label">{{ item.label }}</span>
       </RouterLink>
     </nav>
@@ -66,8 +120,8 @@ const items = [
   position: sticky;
   top: 0;
   height: 100vh;
-  padding: 16px;
   width: 240px;
+  padding: 16px;
   box-sizing: border-box;
   background: var(--panel);
   border-right: 1px solid var(--border);
@@ -101,27 +155,6 @@ const items = [
 }
 .sidebar__icon {
   width: 20px;
-  text-align: center;
-}
-.sidebar__label {
-  font-weight: 600;
-}
-@media (max-width: 960px) {
-  .sidebar {
-    position: static;
-    height: auto;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .sidebar__nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-}
-.sidebar__icon {
-  width: 20px;
   display: grid;
   place-items: center;
 }
@@ -129,5 +162,61 @@ const items = [
   width: 18px;
   height: 18px;
   display: block;
+}
+
+/* hamburger hidden on desktop */
+.sidebar__toggle {
+  display: none;
+}
+
+/* ===== Mobile / tablet ===== */
+@media (max-width: 960px) {
+  .sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 2100; /* above header & map */
+    height: auto;
+    width: 100%;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar__brand {
+    margin: 0;
+  }
+  .sidebar__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    border: 1px solid var(--btn-border);
+  }
+  /* popover menu (hidden by default) */
+  .sidebar__nav {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+    padding: 8px;
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .sidebar__nav.is-open {
+    display: flex;
+  }
+  .sidebar__link {
+    padding: 10px 12px;
+  }
 }
 </style>
