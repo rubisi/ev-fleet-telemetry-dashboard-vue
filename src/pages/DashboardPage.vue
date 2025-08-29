@@ -186,10 +186,10 @@ function toggleSortDir() {
 
             <div class="controls__spacer"></div>
 
-            <div class="controls__group">
+            <!--<div class="controls__group">
               <button @click="$store.dispatch('stopStream')">Pause</button>
               <button @click="$store.dispatch('startStream')">Resume</button>
-            </div>
+            </div>-->
           </div>
 
           <!-- Cards -->

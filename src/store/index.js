@@ -111,7 +111,7 @@ export default createStore({
       if (state._tick) return
       state._lastTick = Date.now()
       state._tick = setInterval(() => dispatch('tick'), 1500)
-      commit('SET_STREAM', true) // NEW
+      commit('SET_STREAM', true)
     },
     stopStream({ state, commit }) {
       // clears the interval, sets streamOn false.
@@ -119,7 +119,7 @@ export default createStore({
         clearInterval(state._tick)
         state._tick = null
       }
-      commit('SET_STREAM', false) // NEW
+      commit('SET_STREAM', false) 
     },
     tick({ state, commit }) {
       const now = Date.now()

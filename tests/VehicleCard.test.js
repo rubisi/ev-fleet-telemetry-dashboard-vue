@@ -13,7 +13,6 @@ const base = {
   lat: 48.1,
   lon: 11.5,
   charging: false,
-  // NEW fields so .toFixed works
   efficiency: 6.5,
   tireFL: 2.4,
   tireFR: 2.4,
